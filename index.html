@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Keyboard History Recorder</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-sm navbar-dark sticky-top" style="background-color: #FBFBFD;">
+	<a class="navbar-brand" href="#"
+	   style="color: black; font-weight: bolder; font-size: 26px; font-family: Chandas; align-items: center; justify-content: center; justify-items: center; text-align: center; margin-left: 30%;">
+		Keyboard History Recorder</a>
+</nav>
+<div style="position: relative;">
+	<div class="container-fluid" style="background-color: white;padding-bottom:355px;">
+		<div class="row content">
+			<div class="right-text col-lg-12 col-md-12 col-sm-12" style="margin-top: 13px;">
+				
+				<!-- Search box -->
+				<input type="text" id="searchBox" class="form-control" placeholder="Search logs..." style="margin-bottom: 15px;">
+
+				<table id="log-table" class="table table-striped">
+					<thead>
+					<tr>
+						<th>Date</th>
+						<th>Time</th>
+						<th>Sites</th>
+						<th>Logs</th>
+					</tr>
+					</thead>
+					<tbody>
+						<!-- Logs will be dynamically inserted here -->
+					</tbody>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    function fetchLogs() {
+        $.getJSON('/logs', function(data) {
+            const tbody = $('#log-table tbody');
+            tbody.empty();
+            data.forEach(function(log) {
+                tbody.append(
+                    `<tr>
+                        <td>${log.date}</td>
+                        <td>${log.time}</td>
+                        <td>${log.getJSON}</td>
+                        <td>${log.logs.replace(/\n/g, '<br>')}</td>
+                    </tr>`
+                );
+            });
+            filterLogs(); // Apply search filter after logs are fetched
+        });
+    }
+
+    // Search filter functionality
+    function filterLogs() {
+        const searchValue = $('#searchBox').val().toLowerCase();
+        $('#log-table tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1);
+        });
+    }
+
+    // Fetch logs every 5 seconds
+    fetchLogs();
+    setInterval(fetchLogs, 5000);
+
+    // Trigger search filter whenever the search box value changes
+    $('#searchBox').on('keyup', function() {
+        filterLogs();
+    });
+});
+</script>
+</body>
+</html>
